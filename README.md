@@ -3,7 +3,7 @@ Comprehensive SFV
 
 Overview
 
-This Python script provides functionality for generating and verifying checksum files using various hash functions. It supports both cryptographic and non-cryptographic hash functions, including CRC32, CRC64, MD5, SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512, BLAKE2b, and BLAKE2s. The script generates a .csfv file containing checksums for files in a specified directory or for a single file. It also verifies files against an existing .csfv file and logs the results.
+Comprehensive SFV provides functionality for generating and verifying checksum files using various hash functions. It supports both cryptographic and non-cryptographic hash functions, including CRC32, CRC64, MD5, SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512, BLAKE2b, and BLAKE2s. The script generates a .csfv file containing checksums for files in a specified directory or for a single file. It also verifies files against an existing .csfv file and logs the results.
 Features
 
     Generate Checksums: Create a .csfv file with checksums for files using the selected hash type.
@@ -21,15 +21,15 @@ Installation
     colorama
 
 Usage
-Running the Script
+Running Comprehensive SFV
 
-To run the script, execute it using Python:
+To run Comprehensive SFV, execute it using Python:
 
 python3 csfv.py
 
 Menu Options
 
-When you run the script, you'll be presented with a menu:
+When you run Comprehensive SFV, you'll be presented with a menu:
 
     Generate .csfv file: Create a .csfv file for a specified file or directory.
     Verify .csfv file: Verify files against an existing .csfv file.
@@ -70,7 +70,7 @@ python3 csfv.py
 
 Error Handling
 
-The script handles errors related to file operations and hash computations. Error messages will be displayed in the console and logged to the verification results file.
+Comprehensive SFV handles errors related to file operations and hash computations. Error messages will be displayed in the console and logged to the verification results file.
 License
 
-This script is provided as-is without any warranty. Use it at your own risk.
+Comprehensive SFV is provided as-is without any warranty. Use it at your own risk.
