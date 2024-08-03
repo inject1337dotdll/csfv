@@ -61,6 +61,7 @@ def generate_chksum_file(path, hash_type):
             return
 
         chksum_filepath = os.path.join(base_dir, chksum_filename)
+        print(f"Generating checksum file at: {chksum_filepath}")
 
         checksums = []
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -104,7 +105,7 @@ def verify_chksum_file(path):
     try:
         if os.path.isfile(path):
             base_dir = os.path.dirname(path)
-            chksum_filename = os.path.basename(path) + ".csfv"
+            chksum_filename = os.path.basename(path)
             chksum_filepath = os.path.join(base_dir, chksum_filename)
             log_filename = chksum_filename + ".log"
             log_filepath = os.path.join(base_dir, log_filename)
@@ -117,6 +118,8 @@ def verify_chksum_file(path):
         else:
             print("Invalid path. Please provide a valid file or directory.")
             return
+
+        print(f"Verifying checksum file at: {chksum_filepath}")
 
         if not os.path.exists(chksum_filepath):
             print("No .csfv file found.")
@@ -297,6 +300,7 @@ def main():
             break
         except Exception as e:
             print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
     main()
