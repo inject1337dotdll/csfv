@@ -1,11 +1,11 @@
 import os
 import hashlib
 import zlib
+import argparse
 from datetime import datetime
 from colorama import Fore, Style, init
 
 init(autoreset=True)
-
 
 def hash_file(file_path, hash_type):
     try:
@@ -40,7 +40,6 @@ def hash_file(file_path, hash_type):
     except Exception as e:
         print(f"Error hashing file {file_path}: {e}")
         return None
-
 
 def generate_chksum_file(path, hash_type):
     try:
@@ -88,7 +87,6 @@ def generate_chksum_file(path, hash_type):
     except Exception as e:
         print(f"Error generating .csfv file: {e}")
 
-
 def format_file_size(size_bytes):
     """Format file size in KB, MB, GB, etc."""
     if size_bytes < 1024:
@@ -99,7 +97,6 @@ def format_file_size(size_bytes):
         return f"{size_bytes / 1048576:.2f} MB"
     else:
         return f"{size_bytes / 1073741824:.2f} GB"
-
 
 def verify_chksum_file(path):
     try:
@@ -215,92 +212,79 @@ def verify_chksum_file(path):
     except Exception as e:
         print(f"Error verifying .csfv file: {e}")
 
-
 def main():
-    while True:
-        try:
-            print(f"{Fore.GREEN}\nComprehensive SFV v1.0")
-            print("1. Generate .csfv file")
-            print("2. Verify .csfv file")
-            print("3. Exit")
-            choice = input("Input: ")
+    parser = argparse.ArgumentParser(description="Generate or verify .csfv checksum files.")
+    parser.add_argument('-g', '--generate', metavar='DIRECTORY', type=str, help='Directory to generate .csfv file.')
+    parser.add_argument('-v', '--verify', metavar='DIRECTORY', type=str, help='Directory containing .csfv file for verification.')
+    
+    args = parser.parse_args()
 
-            if choice == "1":
-                path = input(
-                    "Enter the file or directory path to generate .csfv file: "
-                )
-                if os.path.exists(path):
-                    print("Choose hash type:")
-                    print(
-                        f"{Fore.RED}1.  CRC32    - Broken    (Vulnerable to collisions.)"
-                    )
-                    print(
-                        f"{Fore.RED}2.  CRC64    - Broken    (Vulnerable to collisions.)"
-                    )
-                    print(
-                        f"{Fore.RED}3.  MD5      - Broken    (Vulnerable to collisions.)"
-                    )
-                    print(
-                        f"{Fore.YELLOW}4.  SHA2-256 - Uncertain (Theoretical weaknesses, collisions.)"
-                    )
-                    print(
-                        f"{Fore.GREEN}5.  SHA2-384 - Secure    (More secure than SHA-256 due to increased bit length.)"
-                    )
-                    print(
-                        f"{Fore.GREEN}6.  SHA2-512 - Secure    (Offers even more security than SHA-384, may not be significant for all applications.)"
-                    )
-                    print(
-                        f"{Fore.GREEN}7.  SHA3-256 - Secure    (Providing a different cryptographic approach and enhanced security compared to SHA-2.)"
-                    )
-                    print(
-                        f"{Fore.GREEN}8.  SHA3-384 - Secure    (Provides more security than SHA3-256.)"
-                    )
-                    print(
-                        f"{Fore.GREEN}9.  SHA3-512 - Secure    (The most secure in the SHA-3 family.)"
-                    )
-                    print(
-                        f"{Fore.GREEN}10. BLAKE2b  - Secure    (A high-performance cryptographic hash function.)"
-                    )
-                    print(
-                        f"{Fore.GREEN}11. BLAKE2s  - Secure    (A high-performance cryptographic hash function with smaller output size.)"
-                    )
-                    hash_choice = input("Input: ")
-                    hash_types = {
-                        "1": "crc32",
-                        "2": "crc64",
-                        "3": "md5",
-                        "4": "sha256",
-                        "5": "sha384",
-                        "6": "sha512",
-                        "7": "sha3_256",
-                        "8": "sha3_384",
-                        "9": "sha3_512",
-                        "10": "blake2b",
-                        "11": "blake2s",
-                    }
-                    if hash_choice in hash_types:
-                        generate_chksum_file(path, hash_types[hash_choice])
-                        print(f".csfv file generated at {path}")
-                    else:
-                        print("Invalid hash type choice. Please try again.")
-                else:
-                    print("Invalid path. Please try again.")
-            elif choice == "2":
-                path = input("Enter the file or directory path to verify .csfv file: ")
-                if os.path.exists(path):
-                    verify_chksum_file(path)
-                else:
-                    print("Invalid path. Please try again.")
-            elif choice == "3":
-                break
+    if args.generate:
+        path = args.generate
+        if os.path.exists(path):
+            print("Choose hash type:")
+            print(
+                f"{Fore.RED}1.  CRC32    - Broken    (Vulnerable to collisions.)"
+            )
+            print(
+                f"{Fore.RED}2.  CRC64    - Broken    (Vulnerable to collisions.)"
+            )
+            print(
+                f"{Fore.RED}3.  MD5      - Broken    (Vulnerable to collisions.)"
+            )
+            print(
+                f"{Fore.YELLOW}4.  SHA2-256 - Uncertain (Theoretical weaknesses, collisions.)"
+            )
+            print(
+                f"{Fore.GREEN}5.  SHA2-384 - Secure    (More secure than SHA-256 due to increased bit length.)"
+            )
+            print(
+                f"{Fore.GREEN}6.  SHA2-512 - Secure    (Offers even more security than SHA-384, may not be significant for all applications.)"
+            )
+            print(
+                f"{Fore.GREEN}7.  SHA3-256 - Secure    (Providing a different cryptographic approach and enhanced security compared to SHA-2.)"
+            )
+            print(
+                f"{Fore.GREEN}8.  SHA3-384 - Secure    (Provides more security than SHA3-256.)"
+            )
+            print(
+                f"{Fore.GREEN}9.  SHA3-512 - Secure    (The most secure in the SHA-3 family.)"
+            )
+            print(
+                f"{Fore.GREEN}10. BLAKE2b  - Secure    (A high-performance cryptographic hash function.)"
+            )
+            print(
+                f"{Fore.GREEN}11. BLAKE2s  - Secure    (A high-performance cryptographic hash function with smaller output size.)"
+            )
+            hash_choice = input("Input: ")
+            hash_types = {
+                "1": "crc32",
+                "2": "crc64",
+                "3": "md5",
+                "4": "sha256",
+                "5": "sha384",
+                "6": "sha512",
+                "7": "sha3_256",
+                "8": "sha3_384",
+                "9": "sha3_512",
+                "10": "blake2b",
+                "11": "blake2s",
+            }
+            if hash_choice in hash_types:
+                generate_chksum_file(path, hash_types[hash_choice])
+                print(f".csfv file generated at {path}")
             else:
-                print("Invalid choice. Please try again.")
-        except KeyboardInterrupt:
-            print("\nBye.")
-            break
-        except Exception as e:
-            print(f"An error occurred: {e}")
-
+                print("Invalid hash type choice. Please try again.")
+        else:
+            print("Invalid path. Please try again.")
+    elif args.verify:
+        path = args.verify
+        if os.path.exists(path):
+            verify_chksum_file(path)
+        else:
+            print("Invalid path. Please try again.")
+    else:
+        print("Please specify either -g or -v option.")
 
 if __name__ == "__main__":
     main()
