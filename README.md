@@ -3,7 +3,7 @@ Comprehensive SFV
 
 Overview
 
-Comprehensive SFV provides functionality for generating and verifying checksum files using various hash functions. It supports both cryptographic and non-cryptographic hash functions, including CRC32, CRC64, MD5, SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512, BLAKE2b, and BLAKE2s. The script generates a .csfv file containing checksums for files in a specified directory or for a single file. It also verifies files against an existing .csfv file and logs the results.
+Comprehensive SFV provides functionality for generating and verifying checksum files using various hash functions. It supports both cryptographic and non-cryptographic hash functions, including CRC32, CRC64, MD5, SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512, BLAKE2b, and BLAKE2s. Comprehensive SFV generates a .csfv file containing checksums for files in a specified directory or for a single file. It also verifies files against an existing .csfv file and logs the results.
 Features
 
     Generate Checksums: Create a .csfv file with checksums for files using the selected hash type.
@@ -48,7 +48,7 @@ Verifying a .csfv File
 
     Select option 2 from the menu.
     Enter the file or directory path where the .csfv file is located.
-    The script will compare the stored checksums with the actual file checksums and generate a log file with the results.
+    Comprehensive SFV will compare the stored checksums with the actual file checksums and generate a log file with the results.
 
 Example
 
@@ -67,6 +67,23 @@ python3 csfv.py
 
     Select 2 to verify the checksum file.
     Enter the path to the directory containing the .csfv file.
+
+Comprehensive SFV accepts two command line arguments: generate and verify. You can use these arguments with the following options:
+Generate Checksum File
+
+To generate a .csfv checksum file for a directory or file:
+
+python csfv.py -g DIRECTORY
+
+    -g DIRECTORY: Path to the directory or file for which you want to generate the checksum file. The .csfv file will be created in the same location as the specified path.
+
+Verify Checksum File
+
+To verify a .csfv checksum file:
+
+python csfv.py -v DIRECTORY
+
+    -v DIRECTORY: Path to the directory containing the .csfv file or the path to the .csfv file itself.
 
 Error Handling
 
