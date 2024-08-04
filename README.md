@@ -19,20 +19,11 @@ Installation
 
 Usage
 
-To run Comprehensive SFV, use Python to execute the script:
-
-python csfv.py
-
-Command-Line Arguments
-Comprehensive SFV accepts two command-line arguments: generate and verify.
-
 Generate Checksum File
-To generate a .csfv checksum file for a directory or file:
-    -g DIRECTORY: Path to the directory or file for which you want to generate the checksum file. The .csfv file will be created in the same location as the specified path.
+python csfv.py -g DIRECTORY
 
 Verify Checksum File
-To verify a .csfv checksum file:
-    -v DIRECTORY: Path to the directory containing the .csfv file or the path to the .csfv file itself.
+python csfv.py -v DIRECTORY
 
 Error Handling
 Comprehensive SFV handles errors related to file operations and hash computations. Error messages are displayed in the console.
