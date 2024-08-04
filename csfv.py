@@ -97,8 +97,15 @@ def generate_chksum_file(path, hash_type):
         # Calculate the elapsed time
         elapsed_time = end_time - start_time
 
+        # Convert elapsed time to minutes and seconds
+        minutes = int(elapsed_time // 60)
+        seconds = elapsed_time % 60
+
         # Print the elapsed time
-        print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds")
+        if elapsed_time >= 60:
+            print(f"{Fore.GREEN}Time elapsed: {minutes} minutes and {seconds:.2f} seconds")
+        else:
+            print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds")
 
     except Exception as e:
         print(f"{Fore.RED}Error generating .csfv file: {e}")
@@ -224,11 +231,18 @@ def verify_chksum_file(path):
         # Calculate the elapsed time
         elapsed_time = end_time - start_time
 
+        # Convert elapsed time to minutes and seconds
+        minutes = int(elapsed_time // 60)
+        seconds = elapsed_time % 60
+
         # Print the elapsed time
-        print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds")
+        if elapsed_time >= 60:
+            print(f"{Fore.GREEN}Time elapsed: {minutes} minutes and {seconds:.2f} seconds")
+        else:
+            print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds")
 
     except Exception as e:
-        print(f"Error verifying .csfv file: {e}")
+        print(f"{Fore.RED}Error verifying .csfv file: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate or verify .csfv checksum files.")
