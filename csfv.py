@@ -3,6 +3,7 @@ import hashlib
 import zlib
 import argparse
 from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from colorama import Fore, Style, init
 
 init(autoreset=True)
@@ -65,11 +66,13 @@ def generate_chksum_file(path, hash_type):
         checksums = []
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        for file_path in files:
-            if os.path.isfile(file_path):
-                file_hash = hash_file(file_path, hash_type)
+        with ProcessPoolExecutor() as executor:
+            future_to_file = {executor.submit(hash_file, file, hash_type): file for file in files if os.path.isfile(file)}
+            for future in as_completed(future_to_file):
+                file = future_to_file[future]
+                file_hash = future.result()
                 if file_hash is not None:
-                    checksums.append((file_hash, os.path.relpath(file_path, base_dir)))
+                    checksums.append((file_hash, os.path.relpath(file, base_dir)))
 
         with open(chksum_filepath, "w") as chksum_file:
             chksum_file.write(f"# csfv v1.0 | Date: {timestamp}\n")
@@ -97,6 +100,26 @@ def format_file_size(size_bytes):
         return f"{size_bytes / 1048576:.2f} MB"
     else:
         return f"{size_bytes / 1073741824:.2f} GB"
+
+def verify_file_line(line, base_dir, hash_type):
+    parts = line.strip().split("  ")
+    if len(parts) != 2:
+        return (None, f"{Fore.RED}ERROR: Incorrect format in .csfv file line: {line.strip()}\n", None, None)
+
+    file_hash, file_name = parts
+    file_path = os.path.join(base_dir, file_name)
+
+    if not os.path.exists(file_path):
+        return (None, f"{Fore.RED}File missing: {file_name}\n", file_name, None)
+
+    actual_file_hash = hash_file(file_path, hash_type)
+    file_size = os.path.getsize(file_path)
+    file_size_formatted = format_file_size(file_size)
+
+    if actual_file_hash != file_hash:
+        return (None, f"{Fore.RED}FAILED: {actual_file_hash} {file_name}\n", file_name, None)
+    else:
+        return (file_hash, f"{Fore.GREEN}PASSED: {actual_file_hash} {file_name} - {file_size_formatted}\n", None, file_size_formatted)
 
 def verify_chksum_file(path):
     try:
@@ -152,48 +175,18 @@ def verify_chksum_file(path):
             failed_count = 0
             failed_files = []
 
-            for line in lines[2:-1]:
-                if line.startswith("#") or not line.strip():
-                    continue
-
-                parts = line.strip().split("  ")
-                if len(parts) != 2:
-                    log_file.write(
-                        f"{Fore.RED}ERROR: Incorrect format in .csfv file line: {line.strip()}\n"
-                    )
-                    print(
-                        f"{Fore.RED}ERROR: Incorrect format in .csfv file line: {line.strip()}"
-                    )
-                    failed_count += 1
-                    continue
-
-                file_hash, file_name = parts
-                file_path = os.path.join(base_dir, file_name)
-
-                if not os.path.exists(file_path):
-                    log_file.write(f"{Fore.RED}File missing: {file_name}\n")
-                    print(f"{Fore.RED}File missing: {file_name}")
-                    failed_count += 1
-                    failed_files.append(file_name)
-                    continue
-
-                actual_file_hash = hash_file(file_path, hash_type)
-                file_size = os.path.getsize(file_path)
-                file_size_formatted = format_file_size(file_size)
-
-                if actual_file_hash != file_hash:
-                    log_file.write(
-                        f"{Fore.RED}FAILED: {actual_file_hash} {file_name}\n"
-                    )
-                    print(f"{Fore.RED}FAILED: {actual_file_hash} {file_name}")
-                    failed_count += 1
-                    failed_files.append(file_name)
-                else:
-                    log_file.write(
-                        f"{Fore.GREEN}PASSED: {actual_file_hash} {file_name}\n"
-                    )
-                    print(f"{Fore.GREEN}PASSED: {actual_file_hash} {file_name}")
-                    passed_count += 1
+            with ProcessPoolExecutor() as executor:
+                future_to_line = {executor.submit(verify_file_line, line, base_dir, hash_type): line for line in lines[2:-1] if not line.startswith("#") and line.strip()}
+                for future in as_completed(future_to_line):
+                    file_hash, result_line, failed_file, file_size_formatted = future.result()
+                    if file_hash is None:
+                        failed_count += 1
+                        if failed_file:
+                            failed_files.append(failed_file)
+                    else:
+                        passed_count += 1
+                    log_file.write(result_line)
+                    print(result_line.strip())
 
             if failed_count == 0:
                 log_file.write(
@@ -219,72 +212,81 @@ def main():
     
     args = parser.parse_args()
 
-    if args.generate:
-        path = args.generate
-        if os.path.exists(path):
-            print("Choose hash type:")
-            print(
-                f"{Fore.RED}1.  CRC32    - Broken    (Vulnerable to collisions.)"
-            )
-            print(
-                f"{Fore.RED}2.  CRC64    - Broken    (Vulnerable to collisions.)"
-            )
-            print(
-                f"{Fore.RED}3.  MD5      - Broken    (Vulnerable to collisions.)"
-            )
-            print(
-                f"{Fore.YELLOW}4.  SHA2-256 - Uncertain (Theoretical weaknesses, collisions.)"
-            )
-            print(
-                f"{Fore.GREEN}5.  SHA2-384 - Secure    (More secure than SHA-256 due to increased bit length.)"
-            )
-            print(
-                f"{Fore.GREEN}6.  SHA2-512 - Secure    (Offers even more security than SHA-384, may not be significant for all applications.)"
-            )
-            print(
-                f"{Fore.GREEN}7.  SHA3-256 - Secure    (Providing a different cryptographic approach and enhanced security compared to SHA-2.)"
-            )
-            print(
-                f"{Fore.GREEN}8.  SHA3-384 - Secure    (Provides more security than SHA3-256.)"
-            )
-            print(
-                f"{Fore.GREEN}9.  SHA3-512 - Secure    (The most secure in the SHA-3 family.)"
-            )
-            print(
-                f"{Fore.GREEN}10. BLAKE2b  - Secure    (A high-performance cryptographic hash function.)"
-            )
-            print(
-                f"{Fore.GREEN}11. BLAKE2s  - Secure    (A high-performance cryptographic hash function with smaller output size.)"
-            )
-            hash_choice = input("Input: ")
-            hash_types = {
-                "1": "crc32",
-                "2": "crc64",
-                "3": "md5",
-                "4": "sha256",
-                "5": "sha384",
-                "6": "sha512",
-                "7": "sha3_256",
-                "8": "sha3_384",
-                "9": "sha3_512",
-                "10": "blake2b",
-                "11": "blake2s",
-            }
-            if hash_choice in hash_types:
-                generate_chksum_file(path, hash_types[hash_choice])
-                print(f".csfv file generated at {path}")
+    try:
+        if args.generate:
+            path = args.generate
+            if os.path.exists(path):
+                print("Choose hash type:")
+                print(
+                    f"{Fore.RED}1.  CRC32    - Broken    (Vulnerable to collisions.)"
+                )
+                print(
+                    f"{Fore.RED}2.  CRC64    - Broken    (Vulnerable to collisions.)"
+                )
+                print(
+                    f"{Fore.RED}3.  MD5      - Broken    (Vulnerable to collisions.)"
+                )
+                print(
+                    f"{Fore.YELLOW}4.  SHA2-256 - Uncertain (Theoretical weaknesses, collisions.)"
+                )
+                print(
+                    f"{Fore.GREEN}5.  SHA2-384 - Secure    (More secure than SHA-256 due to increased bit length.)"
+                )
+                print(
+                    f"{Fore.GREEN}6.  SHA2-512 - Secure    (Offers even more security than SHA-384, may not be significant for all applications.)"
+                )
+                print(
+                    f"{Fore.GREEN}7.  SHA3-256 - Secure    (Providing a different cryptographic approach and enhanced security compared to SHA-2.)"
+                )
+                print(
+                    f"{Fore.GREEN}8.  SHA3-384 - Secure    (Provides more security than SHA3-256.)"
+                )
+                print(
+                    f"{Fore.GREEN}9.  SHA3-512 - Secure    (The most secure in the SHA-3 family.)"
+                )
+                print(
+                    f"{Fore.GREEN}10. BLAKE2b  - Secure    (A high-performance cryptographic hash function.)"
+                )
+                print(
+                    f"{Fore.GREEN}11. BLAKE2s  - Secure    (A high-performance cryptographic hash function with smaller output size.)"
+                )
+
+                option = int(input("Enter option (1-11): "))
+
+                hash_types = {
+                    1: "crc32",
+                    2: "crc64",
+                    3: "md5",
+                    4: "sha256",
+                    5: "sha384",
+                    6: "sha512",
+                    7: "sha3_256",
+                    8: "sha3_384",
+                    9: "sha3_512",
+                    10: "blake2b",
+                    11: "blake2s",
+                }
+
+                hash_type = hash_types.get(option, None)
+
+                if hash_type:
+                    generate_chksum_file(path, hash_type)
+                else:
+                    print("Invalid option.")
             else:
-                print("Invalid hash type choice. Please try again.")
+                print("The specified path does not exist.")
+
+        elif args.verify:
+            path = args.verify
+            if os.path.exists(path):
+                verify_chksum_file(path)
+            else:
+                print("The specified path does not exist.")
         else:
-            print("Invalid path. Please try again.")
-    elif args.verify:
-        path = args.verify
-        if os.path.exists(path):
-            verify_chksum_file(path)
-        else:
-            print("Invalid path. Please try again.")
-    else:
-        print("Please specify either -g for generating an csfv file or -v to verify a csfv file.")
+            print("Please specify --generate or --verify with a valid path.")
+
+    except KeyboardInterrupt:
+        print("\nExiting.")
 
 if __name__ == "__main__":
     main()
