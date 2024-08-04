@@ -33,7 +33,6 @@ To verify a .csfv checksum file:
     -v DIRECTORY: Path to the directory containing the .csfv file or the path to the .csfv file itself.
 
 Error Handling
-Comprehensive SFV handles errors related to file operations and hash computations. Error messages are displayed in the console, and interruptions (e.g., Ctrl+C) are managed gracefully. Results and errors are also logged to the verification results file.
-License
+Comprehensive SFV handles errors related to file operations and hash computations. Error messages are displayed in the console.
 
 Comprehensive SFV is provided as-is without any warranty. Use it at your own risk.
