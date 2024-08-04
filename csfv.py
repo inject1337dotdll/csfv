@@ -75,7 +75,7 @@ def generate_chksum_file(path, hash_type):
                     checksums.append((file_hash, os.path.relpath(file, base_dir)))
 
         with open(chksum_filepath, "w") as chksum_file:
-            chksum_file.write(f"# csfv v1.0 | Date: {timestamp}\n")
+            chksum_file.write(f"# csfv v1.1 | Date: {timestamp}\n")
             chksum_file.write(f"# Hash type: {hash_type}\n")
             for file_hash, file_name in checksums:
                 chksum_file.write(f"{file_hash}  {file_name}\n")
