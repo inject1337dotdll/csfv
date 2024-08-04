@@ -20,9 +20,11 @@ Installation
 Usage
 
 Generate Checksum File
+
 python csfv.py -g DIRECTORY
 
 Verify Checksum File
+
 python csfv.py -v DIRECTORY
 
 Error Handling
