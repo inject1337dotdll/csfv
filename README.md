@@ -87,7 +87,8 @@ python csfv.py -v DIRECTORY
 
 Error Handling
 
-Comprehensive SFV handles errors related to file operations and hash computations. Error messages will be displayed in the console and logged to the verification results file.
+Comprehensive SFV handles errors related to file operations and hash computations. Error messages will be displayed in the console and logged to the verification results file
+
 License
 
 Comprehensive SFV is provided as-is without any warranty. Use it at your own risk.
