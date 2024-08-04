@@ -1,5 +1,6 @@
-import os
 import hashlib
+import os
+import time
 import zlib
 import argparse
 from datetime import datetime
@@ -44,6 +45,9 @@ def hash_file(file_path, hash_type):
 
 def generate_chksum_file(path, hash_type):
     try:
+        # Start the timer
+        start_time = time.time()
+
         if os.path.isfile(path):
             files = [path]
             base_dir = os.path.dirname(path)
@@ -61,7 +65,7 @@ def generate_chksum_file(path, hash_type):
             return
 
         chksum_filepath = os.path.join(base_dir, chksum_filename)
-        print(f"Generating checksum file at: {chksum_filepath}")
+        print(f"{Fore.GREEN}Generating checksum file: {chksum_filepath}")
 
         checksums = []
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -75,7 +79,7 @@ def generate_chksum_file(path, hash_type):
                     checksums.append((file_hash, os.path.relpath(file, base_dir)))
 
         with open(chksum_filepath, "w") as chksum_file:
-            chksum_file.write(f"# csfv v1.1 | Date: {timestamp}\n")
+            chksum_file.write(f"# csfv v1.0 | Date: {timestamp}\n")
             chksum_file.write(f"# Hash type: {hash_type}\n")
             for file_hash, file_name in checksums:
                 chksum_file.write(f"{file_hash}  {file_name}\n")
@@ -87,8 +91,17 @@ def generate_chksum_file(path, hash_type):
         with open(chksum_filepath, "a") as chksum_file:
             chksum_file.write(f"# Master BLAKE2b: {chksum_master_hash}\n")
 
+        # End the timer
+        end_time = time.time()
+
+        # Calculate the elapsed time
+        elapsed_time = end_time - start_time
+
+        # Print the elapsed time
+        print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds")
+
     except Exception as e:
-        print(f"Error generating .csfv file: {e}")
+        print(f"{Fore.RED}Error generating .csfv file: {e}")
 
 def format_file_size(size_bytes):
     """Format file size in KB, MB, GB, etc."""
@@ -123,6 +136,9 @@ def verify_file_line(line, base_dir, hash_type):
 
 def verify_chksum_file(path):
     try:
+        # Start the timer
+        start_time = time.time()
+
         if os.path.isfile(path):
             base_dir = os.path.dirname(path)
             chksum_filename = os.path.basename(path)
@@ -136,10 +152,10 @@ def verify_chksum_file(path):
             log_filepath = os.path.join(path, log_filename)
             base_dir = path
         else:
-            print("Invalid path. Please provide a valid file or directory.")
+            print(f"{Fore.RED}Invalid path. Please provide a valid file or directory.")
             return
 
-        print(f"Verifying checksum file at: {chksum_filepath}")
+        print(f"{Fore.GREEN}Verifying checksum file: {chksum_filepath}")
 
         if not os.path.exists(chksum_filepath):
             print("No .csfv file found.")
@@ -201,6 +217,15 @@ def verify_chksum_file(path):
                 for failed_file in failed_files:
                     log_file.write(f"{Fore.RED} - {failed_file}\n")
                     print(f"{Fore.RED} - {failed_file}")
+
+        # End the timer
+        end_time = time.time()
+
+        # Calculate the elapsed time
+        elapsed_time = end_time - start_time
+
+        # Print the elapsed time
+        print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds")
 
     except Exception as e:
         print(f"Error verifying .csfv file: {e}")
