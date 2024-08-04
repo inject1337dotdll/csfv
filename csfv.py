@@ -284,7 +284,7 @@ def main():
         else:
             print("Invalid path. Please try again.")
     else:
-        print("Please specify either -g or -v option.")
+        print("Please specify either -g for generating an csfv file or -v to verify a csfv file.")
 
 if __name__ == "__main__":
     main()
