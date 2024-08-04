@@ -26,14 +26,10 @@ Comprehensive SFV accepts two command-line arguments: generate and verify.
 
 Generate Checksum File
 To generate a .csfv checksum file for a directory or file:
-
-python csfv.py -g DIRECTORY
     -g DIRECTORY: Path to the directory or file for which you want to generate the checksum file. The .csfv file will be created in the same location as the specified path.
 
 Verify Checksum File
 To verify a .csfv checksum file:
-
-python csfv.py -v DIRECTORY
     -v DIRECTORY: Path to the directory containing the .csfv file or the path to the .csfv file itself.
 
 Error Handling
