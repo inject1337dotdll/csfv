@@ -2,12 +2,14 @@ Comprehensive SFV
 Overview
 
 Comprehensive SFV is a Python tool designed for generating and verifying checksum files using a range of hash functions. It supports both cryptographic and non-cryptographic hash functions, including CRC32, CRC64, MD5, SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512, BLAKE2b, and BLAKE2s. This tool generates a .csfv file containing checksums for files in a specified directory or for a single file and allows for verification of files against an existing .csfv file, logging the results.
+
 Features
 
     Generate Checksums: Create a .csfv file with checksums for files using the selected hash type.
     Verify Checksums: Verify files against a .csfv file and log the results.
     Customizable Hash Types: Choose from various hash functions with different security levels.
     Formatted Output: Logs results with color-coded status and file size information.
+    Multi-Threading: Uses all cpu's in an effort to spread the workload.
     Error Handling: Provides detailed error messages for better debugging and handles interruptions gracefully.
 
 Installation
