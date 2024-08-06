@@ -9,6 +9,7 @@ from colorama import Fore, Style, init
 
 init(autoreset=True)
 
+
 def hash_file(file_path, hash_type):
     try:
         if hash_type in [
@@ -43,6 +44,7 @@ def hash_file(file_path, hash_type):
         print(f"Error hashing file {file_path}: {e}")
         return None
 
+
 def generate_chksum_file(path, hash_type):
     try:
         # Start the timer
@@ -71,7 +73,11 @@ def generate_chksum_file(path, hash_type):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         with ProcessPoolExecutor() as executor:
-            future_to_file = {executor.submit(hash_file, file, hash_type): file for file in files if os.path.isfile(file)}
+            future_to_file = {
+                executor.submit(hash_file, file, hash_type): file
+                for file in files
+                if os.path.isfile(file)
+            }
             for future in as_completed(future_to_file):
                 file = future_to_file[future]
                 file_hash = future.result()
@@ -79,7 +85,7 @@ def generate_chksum_file(path, hash_type):
                     checksums.append((file_hash, os.path.relpath(file, base_dir)))
 
         with open(chksum_filepath, "w") as chksum_file:
-            chksum_file.write(f"# csfv v1.0 | Date: {timestamp}\n")
+            chksum_file.write(f"# csfv v1.0 | {chksum_filename} | Date: {timestamp}\n")
             chksum_file.write(f"# Hash type: {hash_type}\n")
             for file_hash, file_name in checksums:
                 chksum_file.write(f"{file_hash}  {file_name}\n")
@@ -89,7 +95,7 @@ def generate_chksum_file(path, hash_type):
         chksum_master_hash = hashlib.blake2b(chksum_data.encode()).hexdigest()
 
         with open(chksum_filepath, "a") as chksum_file:
-            chksum_file.write(f"# Master BLAKE2b: {chksum_master_hash}\n")
+            chksum_file.write(f"# Master blake2b: {chksum_master_hash}\n")
 
         # End the timer
         end_time = time.time()
@@ -103,12 +109,15 @@ def generate_chksum_file(path, hash_type):
 
         # Print the elapsed time
         if elapsed_time >= 60:
-            print(f"{Fore.GREEN}Time elapsed: {minutes} minutes and {seconds:.2f} seconds")
+            print(
+                f"{Fore.GREEN}Time elapsed: {minutes} minutes and {seconds:.2f} seconds"
+            )
         else:
             print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds")
 
     except Exception as e:
         print(f"{Fore.RED}Error generating .csfv file: {e}")
+
 
 def format_file_size(size_bytes):
     """Format file size in KB, MB, GB, etc."""
@@ -121,10 +130,16 @@ def format_file_size(size_bytes):
     else:
         return f"{size_bytes / 1073741824:.2f} GB"
 
+
 def verify_file_line(line, base_dir, hash_type):
     parts = line.strip().split("  ")
     if len(parts) != 2:
-        return (None, f"{Fore.RED}ERROR: Incorrect format in .csfv file line: {line.strip()}\n", None, None)
+        return (
+            None,
+            f"{Fore.RED}ERROR: Incorrect format in .csfv file line: {line.strip()}\n",
+            None,
+            None,
+        )
 
     file_hash, file_name = parts
     file_path = os.path.join(base_dir, file_name)
@@ -137,9 +152,20 @@ def verify_file_line(line, base_dir, hash_type):
     file_size_formatted = format_file_size(file_size)
 
     if actual_file_hash != file_hash:
-        return (None, f"{Fore.RED}FAILED: {actual_file_hash} {file_name}\n", file_name, None)
+        return (
+            None,
+            f"{Fore.RED}FAILED: {actual_file_hash} {file_name}\n",
+            file_name,
+            None,
+        )
     else:
-        return (file_hash, f"{Fore.GREEN}PASSED: {actual_file_hash} {file_name} - {file_size_formatted}\n", None, file_size_formatted)
+        return (
+            file_hash,
+            f"{Fore.GREEN}PASSED: {actual_file_hash} {file_name} - {file_size_formatted}\n",
+            None,
+            file_size_formatted,
+        )
+
 
 def verify_chksum_file(path):
     try:
@@ -165,7 +191,7 @@ def verify_chksum_file(path):
         print(f"{Fore.GREEN}Verifying checksum file: {chksum_filepath}")
 
         if not os.path.exists(chksum_filepath):
-            print("No .csfv file found.")
+            print(f"{Fore.RED}No .csfv file found.")
             return
 
         with open(chksum_filepath, "r") as chksum_file:
@@ -184,6 +210,7 @@ def verify_chksum_file(path):
                 print(
                     f"{Fore.RED}FAILED: {chksum_filepath} failed master verification."
                 )
+                return
             else:
                 log_file.write(
                     f"{Fore.GREEN}PASSED: {chksum_filepath} passed master verification.\n"
@@ -199,9 +226,18 @@ def verify_chksum_file(path):
             failed_files = []
 
             with ProcessPoolExecutor() as executor:
-                future_to_line = {executor.submit(verify_file_line, line, base_dir, hash_type): line for line in lines[2:-1] if not line.startswith("#") and line.strip()}
+                future_to_line = {
+                    executor.submit(verify_file_line, line, base_dir, hash_type): line
+                    for line in lines[2:-1]
+                    if not line.startswith("#") and line.strip()
+                }
                 for future in as_completed(future_to_line):
-                    file_hash, result_line, failed_file, file_size_formatted = future.result()
+                    (
+                        file_hash,
+                        result_line,
+                        failed_file,
+                        file_size_formatted,
+                    ) = future.result()
                     if file_hash is None:
                         failed_count += 1
                         if failed_file:
@@ -237,18 +273,35 @@ def verify_chksum_file(path):
 
         # Print the elapsed time
         if elapsed_time >= 60:
-            print(f"{Fore.GREEN}Time elapsed: {minutes} minutes and {seconds:.2f} seconds")
+            print(
+                f"{Fore.GREEN}Time elapsed: {minutes} minutes and {seconds:.2f} seconds."
+            )
         else:
-            print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds")
+            print(f"{Fore.GREEN}Time elapsed: {elapsed_time:.4f} seconds.")
 
     except Exception as e:
         print(f"{Fore.RED}Error verifying .csfv file: {e}")
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Generate or verify .csfv checksum files.")
-    parser.add_argument('-g', '--generate', metavar='DIRECTORY', type=str, help='Directory to generate .csfv file.')
-    parser.add_argument('-v', '--verify', metavar='DIRECTORY', type=str, help='Directory containing .csfv file for verification.')
-    
+    parser = argparse.ArgumentParser(
+        description="Generate or verify .csfv checksum files."
+    )
+    parser.add_argument(
+        "-g",
+        "--generate",
+        metavar="DIRECTORY",
+        type=str,
+        help="Directory to generate .csfv file.",
+    )
+    parser.add_argument(
+        "-v",
+        "--verify",
+        metavar="DIRECTORY",
+        type=str,
+        help="Directory containing .csfv file for verification.",
+    )
+
     args = parser.parse_args()
 
     try:
@@ -256,15 +309,9 @@ def main():
             path = args.generate
             if os.path.exists(path):
                 print("Choose hash type:")
-                print(
-                    f"{Fore.RED}1.  CRC32    - Broken    (Vulnerable to collisions.)"
-                )
-                print(
-                    f"{Fore.RED}2.  CRC64    - Broken    (Vulnerable to collisions.)"
-                )
-                print(
-                    f"{Fore.RED}3.  MD5      - Broken    (Vulnerable to collisions.)"
-                )
+                print(f"{Fore.RED}1.  CRC32    - Broken    (Vulnerable to collisions.)")
+                print(f"{Fore.RED}2.  CRC64    - Broken    (Vulnerable to collisions.)")
+                print(f"{Fore.RED}3.  MD5      - Broken    (Vulnerable to collisions.)")
                 print(
                     f"{Fore.YELLOW}4.  SHA2-256 - Uncertain (Theoretical weaknesses, collisions.)"
                 )
@@ -326,6 +373,7 @@ def main():
 
     except KeyboardInterrupt:
         print("\nExiting.")
+
 
 if __name__ == "__main__":
     main()
