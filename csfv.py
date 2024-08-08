@@ -349,18 +349,18 @@ def main():
                 if hash_type:
                     generate_chksum_file(path, hash_type)
                 else:
-                    print("Invalid option.")
+                     print(f"{Fore.RED}Invalid option.")
             else:
-                print("The specified path does not exist.")
+                 print(f"{Fore.RED}The specified path does not exist.")
 
         elif args.verify:
             path = args.verify
             if os.path.exists(path):
                 verify_chksum_file(path)
             else:
-                print("The specified path does not exist.")
+                 print(f"{Fore.RED}The specified path does not exist.")
         else:
-            print("Please specify --generate or --verify with a valid path.")
+             print(f"{Fore.RED}Please specify --generate or --verify with a valid path.")
 
     except KeyboardInterrupt:
         print("\nExiting.")
