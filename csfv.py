@@ -96,18 +96,14 @@ def generate_chksum_file(path, hash_type):
 
         with open(chksum_filepath, "a") as chksum_file:
             chksum_file.write(f"# Master blake2b: {chksum_master_hash}\n")
-
-        # End the timer
+            
         end_time = time.time()
 
-        # Calculate the elapsed time
         elapsed_time = end_time - start_time
 
-        # Convert elapsed time to minutes and seconds
         minutes = int(elapsed_time // 60)
         seconds = elapsed_time % 60
 
-        # Print the elapsed time
         if elapsed_time >= 60:
             print(
                 f"{Fore.GREEN}Time elapsed: {minutes} minutes and {seconds:.2f} seconds"
@@ -169,7 +165,6 @@ def verify_file_line(line, base_dir, hash_type):
 
 def verify_chksum_file(path):
     try:
-        # Start the timer
         start_time = time.time()
 
         if os.path.isfile(path):
@@ -261,17 +256,13 @@ def verify_chksum_file(path):
                     log_file.write(f"{Fore.RED} - {failed_file}\n")
                     print(f"{Fore.RED} - {failed_file}")
 
-        # End the timer
         end_time = time.time()
 
-        # Calculate the elapsed time
         elapsed_time = end_time - start_time
 
-        # Convert elapsed time to minutes and seconds
         minutes = int(elapsed_time // 60)
         seconds = elapsed_time % 60
 
-        # Print the elapsed time
         if elapsed_time >= 60:
             print(
                 f"{Fore.GREEN}Time elapsed: {minutes} minutes and {seconds:.2f} seconds."
