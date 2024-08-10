@@ -10,7 +10,7 @@ Features
     Verify Checksums: Verify files against a .csfv file and log the results.
     Customizable Hash Types: Choose from various hash functions with different security levels.
     Formatted Output: Logs results with color-coded status and file size information.
-    Multi-Threading: Uses all cpu's in an effort to spread the workload.
+    Multi-Threading: spreading the workload.
     Error Handling: Provides detailed error messages for better debugging and handles interruptions gracefully.
 
 Installation
