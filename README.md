@@ -23,11 +23,13 @@ Usage
 Generate Checksum File
 
 python csfv.py -g FILE
+
 python csfv.py -g DIRECTORY
 
 Verify Checksum File
 
 python csfv.py -v FILE CSFV
+
 python csfv.py -v DIRECTORY
 
 Error Handling
